@@ -1,0 +1,111 @@
+=================================================================
+					  OVERVIEW and SETUP
+=================================================================
+
+This project lets you play Need for Speed Most Wanted using an external
+controller that's made from a plastic scale and some colored paper.
+
+There is a video of a test version of this project on youtube.
+You can watch it here https://www.youtube.com/watch?v=uBfYVfCywu4
+
+There are two main programs involved in making this happen.
+A python program 'control.py' is used to detect the controller and send control
+signals to a C# program 'Program.cs' by using a temporary text file
+Once the C# program receives the signals, it simulates DirectX level
+keystrokes which are detected by the game thus allowing the player to control
+the movement of the car by moving the controller.
+
+In order to get this up and running, there are a few dependencies to be satisfied.
+
+1) You will need to install SimpleCV on your system
+   It is used for the Computer Vision part of the project
+   You can get it here http://simplecv.org/download
+   
+2) The C# program requires a class called MicroTimer. I have included that in the 
+   Project codes folder. You can read more about it here
+   http://www.codeproject.com/Articles/98346/Microsecond-and-Millisecond-NET-Timer
+   
+3) To simulate keystrokes, the C# program uses a dll called InputManager.dll
+   It's located along with the other codes. You can read more about it here
+   http://www.codeproject.com/Articles/117657/InputManager-library-Track-user-input-and-simulate
+
+4) You will obviously need the game Need for Speed Most Wanted to test it.
+   It should theoretically work with most other racing games though.
+   
+Note - You will need Visual Studio to compile the C# codes.
+	   In case you don't have it, you can run the 'ConsoleApplication2.exe'
+	   executable directly but make sure that you place the InputManager.dll file
+	   in the same folder as the executable.
+	   
+	   It is advisable to use an external USB webcam since the inbuilt ones
+	   are not as good as the external ones.
+	   
+=================================================================
+					MAKING THE CONTROLLER
+=================================================================
+
+Materials required - 
+
+1) A plastic scale, preferabbly 30 cms / 12 inches long
+2) A colored piece of paper
+3) Some glue
+
+Cut out a piece of the colored paper that's about 6 inches long and 1 inch wide.
+Center it on the plastic scale and stick it in place with some glue.
+Your game controller is now complete.
+
+Note - Use a color that's bright and prominent.
+	   Don't use something that'll clash with the background or your shirt.
+	   I recommend using bright green or bright blue paper.
+	   
+=================================================================
+				CALIBRATING THE CONTROLLER
+=================================================================
+
+The python program 'control.py' is the one that detects the controller.
+In order for it to work, we need to know the approximate hue value of the
+controller. You might want to take a look at this link for a better understanding.
+http://en.wikipedia.org/wiki/HSL_and_HSV
+
+Hold the controller in front of the webcam and run the 'calibrate.py' 
+program in the Project codes folder. A window should pop up telling you 
+to press the left and right buttons. The FPS and HUE values will also be displayed.
+
+Just keep pressing the left and right buttons until the controller is clearly segmented
+as a single rectangular blob of white pixels and the background is black.
+This part is the hardest step. In order to make the detection more accurate,
+try modifying the source code in 'calibrate.py' and vary the following parameters
+
+1) The binarization threshold. A larger value will improve detection in low light
+   but will lead to noise and interference in the background.
+   
+2) The number of erode and dilate operations. Try a different combination of erodes and dilates
+   to tweak performance a little bit.
+   
+			Important!!!!! 
+			
+*** Once you modify the source code of 'calibrate.py' to get a good result,
+*** you have to modify the corresponding lines of code in 'control.py' as well.
+*** These programs are independent but the whole point of calibration is to find
+*** settings which ensure robust detection and these settings have to be manuallly
+*** changed in 'control.py' by editing the source code.
+   
+   
+Note - This part is critical for good gameplay. Poor calibration will lead to
+	   poor gameplay. Just fiddle around with different parameters. It's all
+	   about trial and error.
+	   
+	   Make sure that the frame rate is around 30 FPS. Lower frame rates lead
+	   to poor results. If your frame rate is low, sit in a well lit environment
+	   and use a better camera.
+
+=================================================================
+						PLAYING THE GAME
+=================================================================
+
+First run the 'control.py' program. Make sure Python has write access to the location
+C:/Temp/control.txt
+Then run the executable generated from the C# code or the 'ConsoleApplication2.exe' one
+Launch the game and start a race.
+Then use the controller and control the car.
+

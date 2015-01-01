@@ -75,7 +75,6 @@ def main():
 			img = captureImage()
 			size, angle = getData(img)
 			writeData(size, angle)
-			print angle
 						
 	except KeyboardInterrupt:		#for clean shutdown when Ctrl + C is pressed to stop the program
 		print "Program terminated"
