@@ -1,0 +1,21 @@
+===================================================================================================
+					INTRODUCTION
+===================================================================================================
+
+This is a set of tutorials on how to use SimpleCV for basic Computer Vision.
+This is by no means a general tutorial on SimpleCV, it focuses mainly on the project and it's core
+part - Color Segmentation. So in a way you can consider it to be an introduction to Color
+Segementation and applying that concept in a real life application.
+
+Once you have mastered the basics, this tutorial will explain how the code in the project works.
+I am assuming that everyone reading this basic guide is familiar with python.
+
+SimpleCV is a collection of python programs which make it easy to use OpenCV's python bindings.
+You can find out more about it here http://simplecv.org/
+There are a lot of samples and tutorials out there for you to refer to.
+
+There is also an ebook which you can refer to for more details.
+It is called Practical Computer Vision with SimpleCV and you can get it at the following site -
+http://it-ebooks.info/book/721/
+Do refer to it if you need clarification on the syntax.
+You can also check out the docs at http://simplecv.org/docs/ for exact details on all the functions

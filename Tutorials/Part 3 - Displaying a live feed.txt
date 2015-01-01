@@ -1,0 +1,124 @@
+===================================================================================================
+				DISPLAYING A LIVE FEED
+===================================================================================================
+
+Before we begin I should probably tell you how to run your programs and stuff. I recommend that you
+do not use IDLE, the Python IDE that comes along with it because it sometiems causes problems
+while running SimpleCV programs. So you need to write them separately and run them manually.
+
+Use Notepad++ for writing the programs. Get it at http://notepad-plus-plus.org/download/v6.7.2.html
+Click the first link (the one which says take this one if you have no idea which to take)
+Download it, install it and pin it to the taskbar (will come in handy, trust me)
+
+To write a python program, create a new blank page (Ctrl + N) and save as (Ctrl + Alt + S)
+Save it as filename.py since it's a python file. Do all this before you write any code since python
+syntax is automatically highlighted (useful right?) when you save it as a .py file.
+
+So our first program is "live.py". Let's go through it line by line.
+Open the program in notepad++ and click on File > Open Containing folder > cmd
+Then run the program with the command "python live.py" (without the quotes)
+Press ESC to end the program.
+To run any other python program type "python filename.py" (without the quotes)
+
+Note - A lot of this program is going to be reused in the coming tutorials so please try to
+understand this part fully since I won't be repeating myself.
+
+------------------------------  line 1 - "from SimpleCV import *" ---------------------------------
+
+As you may be aware, SimpleCV is a collection of python classes and modules which make computer
+vision easy. A lot of their code involves writing classes to represent objects such as
+an image, a camera, a display etc in order to simplify coding. This first line basically tells
+python that we want to make use of all the programs and classes that are part of the SimpleCV
+library (even though we aren't going to make use of all of them). Some of the more important
+classes that we import are Image, Camera, Display, Color etc. So in order to use the SimpleCV
+library, we need to import everything from it.
+
+If you are unfamiliar with classes and objects please look at the following links
+
+http://www.tutorialspoint.com/python/python_classes_objects.htm
+http://learnpythonthehardway.org/book/ex40.html
+
+------------------ line 3 - "cam = Camera(0, {"width" : 320, "height" : 240})" --------------------
+
+This part is about the creation of a camera object. Lets break it up into little pieces.
+The 0 and the width and the height are all properties of the camera object which have to be 
+initialized by the Camera() constructor. So what's that 0 there? Well it's the index of your camera
+which starts from 0. If you have multiple cameras connected to your system, each one will have a 
+different index. So if you'd write 1 instead of 0, it would refer to the second camera plugged
+into your system. It does not have to be specified if there's only one camera since it's default
+value is 0. 
+
+The next part of the camera constructor is a dictionary of properties such as height and width
+It's pretty clear from the code that we are trying to set up a camera which captures images
+of height 240 pixels and width 320 pixels. Note that the default resolution is 640 x 480 but
+there is some glitch in my system which doesn't allow me to use that resolution so I have to
+explicitly set it to a lower resolution. Writing "cam = Camera()" is therefore equivalent to
+writing "cam = Camera(0, {"width" : 640, "height" : 480})" If you ever get an error which says
+ERROR : SampleCB() (yeah I spelt that right) - buffer sizes do not match
+just lower the resolution to 320 x 240 and it should work fine.
+
+For more details, check out the documentation at
+http://simplecv.org/docs/SimpleCV.html#i/SimpleCV.Camera.Camera
+
+------------------------------- line 5 - "display = Display()" ------------------------------------
+
+As you can see from the code, this is the creation of a display object. Why do we need a display
+object? Well a display object represents the window on which we output our final images.
+This display object is also resonsible for handling mouseclick events as we will see later
+and also detects when the window has been closed. The size of the display window generally scales
+to fit the size of the image being displayed but this can be changed however. One use of the
+display object is shown in the next line.
+
+For more details, check out the documentation at
+http://simplecv.org/docs/SimpleCV.html#i/SimpleCV.Display.Display
+
+---------------------------- line 7 - "while not display.isDone():" -------------------------------
+
+Perhaps I should have mentioned what the goal of this program is. As you must have guessed, all we
+are doing is continuously capturing frames from the camera, flipping them horizontally and then
+displaying them. To do this continuously, we have to loop the part where we grab a frame, flip it
+and then display it. But how do we know when to stop? That's where the display object comes in use.
+We can use it to check whether the window has been closed or not. The window will be closed if you
+click the red button with the X to close it (like a normal window) or if you press the ESC key.
+These two phenomena are called events. Moving the mouse around is also an event. The display object
+can check for these events and do stuff accordingly. Take for example the "isDone()" function.
+What is does is return either True or False depending on the state of the window. If the window
+is active, it returns True but if the close button has been clicked or the ESC key has been pressed
+then it returns True. So we can use this function in our while loop to continuously check if the
+window has been closed or not. Note the use of the "not" keyword here. We want the loop to keep 
+going as long as the isDOne() fucntion returns False so we use "not" to negate that. Once the
+isDone() function returns True, negating that makes it False and so the loop terminates.
+
+Note - If you are using a display object, never use a loop like "while True:" You can't stop the
+program with Ctrl + C unlike other infinite loops and you will be in trouble.
+
+------------------------------ line 9 - "img = cam.getImage()" ------------------------------------
+
+Remember that camera object called cam that we had created earlier? Well here's where we use it.
+It has a nice function called "getImage()" that returns an Image object. So the image that we
+capture with the "getImage()" function is stored in the variable called img. Storing this value
+as an Image object allows us to use all the functions of the Image class on it as we will see
+
+-------------------------- line 11 - "flipped_img = img.flipHorizontal()" -------------------------
+
+Now that we have an Image object, there is a lot of stuff that we can do with it. This line shows
+how to flip an image using the "flipHorizontal()" function. There are many other functions which 
+operate on Image objects and you can take a look at them here
+http://simplecv.org/docs/SimpleCV.html#i/SimpleCV.ImageClass.Image
+
+The key here is to understand that most of these functions RETURN ANOTHER IMAGE object. So syntax
+like "img_flipped = img.flipHorizontal().flipVertical().flipHorizontal().flipVertical()"
+is perferctly valid syntax since the output of one operation is the input for the next. In fact, 
+this series of operations actually returns the exact same image :P
+
+--------------------------------- line 13 - "flipped_img.show()" ----------------------------------
+
+The show function is one of the most important functions here. It basically displays the image on
+the window created by the display object earlier. This is one of the few Image class fucntions that
+does not return any value and so it does not to be stored in a variable.
+
+Note that the previous 3 lines of code could easily have been replaced by
+"cam.getImage().flipHorizontal().show()"
+Keep this in mind since we will be using this quite often later on.
+
+
