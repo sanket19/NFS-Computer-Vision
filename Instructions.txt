@@ -1,6 +1,6 @@
-=================================================================
+===================================================================================================
 					  OVERVIEW and SETUP
-=================================================================
+===================================================================================================
 
 This project lets you play Need for Speed Most Wanted using an external
 controller that's made from a plastic scale and some colored paper.
@@ -40,9 +40,9 @@ Note - You will need Visual Studio to compile the C# codes.
 	   It is advisable to use an external USB webcam since the inbuilt ones
 	   are not as good as the external ones.
 	   
-=================================================================
+===================================================================================================
 					MAKING THE CONTROLLER
-=================================================================
+===================================================================================================
 
 Materials required - 
 
@@ -58,9 +58,9 @@ Note - Use a color that's bright and prominent.
 	   Don't use something that'll clash with the background or your shirt.
 	   I recommend using bright green or bright blue paper.
 	   
-=================================================================
+===================================================================================================
 				CALIBRATING THE CONTROLLER
-=================================================================
+===================================================================================================
 
 The python program 'control.py' is the one that detects the controller.
 In order for it to work, we need to know the approximate hue value of the
@@ -99,9 +99,9 @@ Note - This part is critical for good gameplay. Poor calibration will lead to
 	   to poor results. If your frame rate is low, sit in a well lit environment
 	   and use a better camera.
 
-=================================================================
+===================================================================================================
 						PLAYING THE GAME
-=================================================================
+===================================================================================================
 
 First run the 'control.py' program. Make sure Python has write access to the location
 C:/Temp/control.txt
