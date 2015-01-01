@@ -1,0 +1,107 @@
+===================================================================================================
+						SEGMENTING COLORS
+===================================================================================================
+
+This section will discuss the steps involved in segmenting a particular color or range of colors
+in an image. The main problem with segmenting colors is the variation in lighting conditions.
+These variations cause the same object to appear differently colored to the camera which results
+in the program not being able to segment colors properly. A red rose may appear maroon to the
+camera in dim lighting and may appear a bit pinkish in bright light. Hence the difficulty in 
+extracting colors. The basic theory of color extraction is this.
+
+All colors can be represented as 3D vectors in the R,G,B plane. So we can think of each color as 
+being a linear combination of some red, green and blue parts ranging from 0 - 255. If I want to
+segment all pixels which are blue (0,0,255), I'll just subtract this vector from all the other
+vectors in the image ie. each individual pixel value and check whether this difference lies
+within an acceptable threshold of variation or not. If the distance between the blue vector and
+an unknown pixel is low, then I can label that pixel as a blue pixel. If it isn't, then I can 
+label it as a non-blue pixel. In this way I can classify each and every pixel as being blue or non
+blue, thus filtering out all the non blue pixels leaving me with only the blue pixels that I want.
+
+The trouble with this is setting the threshold value to determine what distance from the desired 
+color is acceptable. Keep the value of the threshold too low and you will get very accurate results
+in some cases but if there are any variations in lighting even across the surface of the colored
+object you want, you get very poor results. Keep the threshold value too high to accommodate the
+variation in lighting and you end up letting all sorts of unwanted colors through the filter.
+
+So clearly representing colors are vectors in the R,G,B color space is not the best idea if you
+want to segment colors. The answer to the problem at hand is simple. Just use another color space
+instead which is more suited to the task. The HSV color space is quite well suited to this 
+because of the way in which colors are represented in it. HSV stands for Hue, Saturation and Value.
+It is an example of a cylindrical color space unlike RGB which is a cube.
+
+To understand why HSV is better you need to read a bit of the following article.
+http://en.wikipedia.org/wiki/HSL_and_HSV
+
+If you consider a cylindrical coordinate system with r, theta and Z,
+HSV is equivalent with the following relation
+H = theta
+S = r
+V = z
+
+Now if you slice the cylinder and take a look at its cross section as shown in the figure in the
+article, you can clearly see that it is representing an orange HUE. All the points in that plane
+have different S and V values making them look either light or dark orange, a large variation
+no doubt but all of them have the exact same HUE value! This incredible transformation from
+RGB to HSV has made it possible to introduce a certain degree of invariance to lighting in our
+program if we use the HSV color space and compute the difference of HUES instead of calculating
+difference of RGB vectors. If the hue distance is within an acceptable threshold, then we can
+label that pixel as having the color we want, if not we can classify it as an undesirable pixel.
+In this way we have a more robust segmentation which in turn gives us more accurate results.
+
+Let's go about implementing this in code. Luckily SimpleCV makes our task very very easy with
+its functions.
+
+Note - You will have to run the program multiple times. There is a HUE parameter which you 
+can change depending on the color you want. You can also choose at which stage of the segmenting
+process you wish to view the output.
+
+Look at the code sample given and follow along.
+
+-------------------------------- line 13 - "hsv_img = img.toHSV()" --------------------------------
+
+The "toHSV()" function takes care of the conversion from RGB to HSV color space
+It's quite handy isn't it?
+In case you want to know the formula behind the conversion, check out this link
+http://www.rapidtables.com/convert/color/rgb-to-hsv.htm
+
+------------------------ line 15 - "dist_img = hsv_img.hueDistance(HUE)" --------------------------
+
+The "hueDistance()" function calculates the difference between each pixel and the desired HUE and
+returns the result as an image. (This is not exactly what the function does but you can think that
+this is what it does to simplify your understanding). The function requires a HUE value to be input
+against which it compares all the other pixels' HUE values. Note that the output of this function
+is a grayscale image, and consists only of black, white and a lot of shades of gray. So each pixel
+is now a point on a line, rather than a point in 3D color space
+
+------------------------- line 17 - "bin_img = dist_img.binarize(20)" -----------------------------
+
+The resulting grayscale image now has to be segmented. A check has to be performed to verify if a
+given pixel is indeed a pixel close to the desired HUE. This is quite simple to do if you are able
+to understand intuitively what happens when you subtract two HUES. It's simple, if the HUES are 
+close to each other, their difference will be close to 0. And a 0 in Image Processing represents
+a black pixel. Hence we can conclude that the resulting "dist_img" will have dark shades in regions
+where our desired HUE was present and lighter shades where the HUES do not match. So what does the
+binarize function do? Well it takes in a value (20 in this case), checks if a gray pixel's 
+intensity is below the threshold value that was input and if so, makes that pixel white, if not,
+makes that pixel black instead. Hence by giving a low value like 20, we are able to make all the
+dark regions in the "dist_img" pure white and the rest of the pixels as pure black. Now each pixel
+has only two possible values, black or white which is why it is called a binary image and this
+process is called binarization. The end result of this function is that all the pixels close to the
+desired HUE are now white in color and the rest are all black.
+
+---------------------------------------------------------------------------------------------------
+
+The next two functions "dilate()" and "erode()" are called morphological operators. They are used
+to clean up binary images. What exactly does clean up mean? Well if you look at the resulting 
+binary image you can see that the segmentation wasn't perfect. There are a lot of annoying white
+specks in the image called noise. So we use the aptly named "erode()" function to wash away those
+pesky little specks in the background. The way it works is by checking the neighbourhood of a given
+pixel and checking if it is surrounded by any black pixels. If it is, then it is made black too.
+But this erodes the border of the larger regions too and these are the regions which we want. So we
+use "dilate()" function to reverse the effects of erode. It looks at the neighbouring pixels of a 
+given pixel and if there are any surrounding white pixels, if so, the pixel is made white too.
+
+You can read more about these functions here
+http://homepages.inf.ed.ac.uk/rbf/HIPR2/dilate.htm
+http://homepages.inf.ed.ac.uk/rbf/HIPR2/erode.htm
