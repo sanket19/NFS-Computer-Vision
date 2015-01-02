@@ -2,8 +2,6 @@
 				SIMULATING KEY PRESSES WITH C#
 ===================================================================================================
 
-#incomplete tutorial. sorry im just too tired to complete it.
-
 This is the final tutorial in this 7 part series. An important note to everyone, this part deals
 with a C# program. If you are familiar with Java or C++ this shouldn't be too difficult to follow
 but it will be a bit alien if you are more comfortable with Python. I don't really know C# but I do
@@ -79,9 +77,19 @@ way to measure time with greater accuracy in C# and I found the MicroTimer libra
 manages to achieve microsecond timing. I'm not sure how it does this and although it isn't always
 accurate, it works most of the time which is good enough for this project.
 
-#add stuff here
-
-
+So the plan now is to use the MicroTimer library to call a function every 100 micro seconds. This
+When the function is called 100 times, we can say that one cycle is complete since 10 milliseconds
+will have elapsed and that results in a frequency of 100 Hz. Every time this function is called, we
+increment a certain count variable to measure how many times the function has been called and if the
+cycle is complete or not. Now lets assume that my percentage is 73 (some random value). In the very
+first cycle, the function presses down the key (Left or Right depending on the control string). In
+each subsequent call to the function, the count variable is incremented and the function checks if
+73 calls are over. If they are, the key is released. For the next 27 calls to the function, nothing
+happens, the current state is maintained. Once 100 calls to the function are complete, the program
+reads the text file again, gets the percentage from it and the cycle starts again. So what have we
+accomplished here? We have a system that pressed the key down for 7.3 milliseconds and released it
+for 2.7 milliseconds. That gives us a nice smooth input in the game. And this system will work for
+any arbitrary integer between 0 and 100.
 
 Now that we've got the preliminaries out of the way, lets examine the code line by line.
 Open up "Program.cs" in Notepad++ or MS Visual Studio and check it out.
@@ -129,12 +137,59 @@ programming or socket programming and even embedded C for AVR robots. So what is
 a periodic event that is triggered at a fixed time interval. The next line sets that interval for
 the MicroTimer object as 100 microseconds and the line after that starts the timer.
 
-Lets take a step back and look at the bigger picture and see what's going on. Basically we have
+Let's take a step back and look at the bigger picture and see what's going on. Basically we have
 configured a MicroTimer object. This object is designed in such a way that we can set an interval
 for the timer in microseconds. At the end of each interval, the callback function assigned to the
 MicroTimer object "ButtonPress" is called. Essentially what's happening is that we have made a timer
 which runs the "ButtonPress" function every 100 microseconds. So now we've got a periodic function
-called "ButtonPress" which is called every 100 microseconds. What does "ButtonPress" do? We'll come
-to that later.
+called "ButtonPress" which is called every 100 microseconds. What does "ButtonPress" do? Well it's
+the function that actually implements the pulse width modulation part and is responsible for 
+pressing and releasing the buttons for the right duration of time. So maybe we should take a closer
+look at the "ButtonPress" function (just ignore the parameters, not sure what they do).
 
-#add more stuff here
+It's really quite straightforward. Every time the function is called, the count variable's value is
+incremented by one. Lets assume that the percentage is 73. On the first call, the first if 
+statement is satisfied and the key is pressed. The key press is done with the KeyBoard.KeyDown()
+function. The next 72 calls nothing happens as none of the conditions are satisfied because it is an
+intermediate phase. However once 73 calls to the function are made, the else if condition on line 85
+is satisfied and the key is released. After that the next few calls have no effect since none of the
+conditions is satisfied until the count crosses 100 and once that happens the cycle is complete.
+
+Back to the main function now. If you skip ahead to line 27, you can see that we have the main loop
+of the program. On line 29 we have the beginning of the try block, just the way we had it in python
+because there may be clashes if both programs try to access the file simultaneously and we just want
+to ignore such cases as they are not very frequent. Lines 29 and 30 deal with opening a file stream
+for reading and writing. I know that it's much easier to do this in python using the open() function
+but it's a bit more complicated in C# and Java. An important point to note is that C# by default
+implements something called file locking and Python does not. Basically what it means is that if C#
+has opened the file for writing, Python cannot open the file to write to it. Annoying isn't it?
+Well that's why we have to disable file locking in line 29 by specifying the "FileShare.ReadWrite"
+attribute. That way both programs can access the same file with much fewer clashes.
+
+The next few lines just read the first two lines from the file. The control signals are then
+extracted from these two lines and stored in some variables. The PWM percentage is converted to an
+integer using the Convert.toInt32() function in the C# System namespace. After the control signals
+have been extracted, they can be used for the key press simulation part. The main loop of the
+program is where the UP arrow key presses are simulated. Since PWM is not required here, they can be
+a part of the main loop. The state variable is used just to check if the key was already pressed or
+already released since there is no point in calling the KeyBoard.KeyDown() or KeyBoard.KeyUp()
+functions again.
+
+What happens after that is a bit more interesting. You have to realise that when MicroTimer calls
+the ButtonPress() function, it does so asynchronously. That means that the running of the main loop
+goes on simultaneously during the execution of the ButtonPress() function without being interrupted
+at all! But we don't want the main loop to execute at its natural pace, we want it to wait until
+a cycle is complete after which a new control string can be read. So the main loop has to pause
+for approximately 10 milliseconds while the ButtonPress() cycle executes. The easiest way to do
+that is by running an empty while loop on line 54 until the cycle is complete. Once the cycle is
+completed, the loop breaks allowing the program's execution to continue. At the end of a cycle,
+the only thing left to do is reset the variables. Lines 59 - 62 do just that and reset their values
+for the next cycle.
+
+That's a really really long explanation of a program and I'm sure you're tired after reading it.
+If you've made it this far, congratulations for your perseverance, I know it couldn't have been
+easy. You are now ready to go ahead and test out the code. There are instructions on how to run the
+codes in the main folder and you can learn how to make the controller there as well. Do take a 
+video of yourself playing the game and post it on the BITS TIP page or let me know on facebook.
+I hope that you learnt something new and interesting and that you will take this knowledge forward
+and apply it elsewhere.
