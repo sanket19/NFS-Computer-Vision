@@ -1,0 +1,107 @@
+===================================================================================================
+			BLOB DETECTION AND THE CONTROL SYSTEMS
+===================================================================================================
+
+In this tutorial, we will be examining the main python code that is used in the project. It's the
+"control.py" program. While examining this code, you will learn about blob detection and the 
+control system involved in this project. This program is divided into three functions and one main
+function which calls the other three. We will be looking at each function individually to see how
+it works. Do not run this program unless you want to use it to actually play the game since there
+is no display window or output on the console.
+
+The first few line are quite familiar and they are just to set stuff up. Note that there is no
+display object being created since we aren't going to be showing anything on the screen. There is
+also the additional variable called FILE which specifies the temporary file location where we will
+be writing the commands to. Keep in mind that the role of this program is just to capture data 
+about the controller and write it to a temporary file. A C# program reads this file and then takes
+action on the control signals it reads by simulating keyboard input. I'll explain why I'm using C#
+and why there are two programs instead of just one in the next tutorial but for now, lets leave it
+aside and focus on this program.
+
+The first function is called "captureImage()". It should be quite familiar to you by now. It is just
+the same old color segmentation code that you have seen in the previous two tutorials. It's just
+nicely wrapped up in the form of a function which returns the final binary image.
+
+The second function is called "getData(img)". This function is extremely important because it's the
+one that actually extracts information from the segmented image. Keep in mind that the segmented
+image is what is being passed as a parameter to this function and at this stage, the segmented
+image looks like a white rectangle(the controller) on a black background with maybe a few specks
+of noise. The function called "findBlobs()" is the one which actually extracts information from
+the white rectangle.
+
+Lets take a step back and look at what a blob is. Well it stands for "Binary Large OBject". So
+it's basically a blob of similar pixels grouped together. This function operates on binary
+images(images with only back or white) and tries to find out the groups of white pixels in the 
+image. So basically it tries to find white blobs in this image. And what does this function return?
+Well it returns a list of blobs unsurprisingly. There are a number of parameters that this function
+accepts such as "minsize". This parameter allows you to automatically filter the blobs and return
+just the ones which have a certain minimum list of pixels. There are a lot of other parameters
+and you can read more about it here - Keep in mind it's an extensive topic
+http://simplecv.org/docs/SimpleCV.html#i/SimpleCV.ImageClass.Image/findBlobs
+
+We have defined a blob in abstract terms as a patch of white pixels but lets be a bit more specific
+and see what a blob is in SimpleCV. A blob is something called a feature in SimpleCV and is an 
+object. As an object it has attributes like centroid position, size etc and it has a bunch
+of functions associated with it. I won't be going much into these as you can read about them in
+the book on SimpleCV. We will only be using the angle and size attributes here.
+
+Now that we have our list of blobs, we need to check if we have found any valid blobs.
+Keep in mind that if no valid blobs are found, the "findBlobs()" function returns None. So in line
+25, we make sure that "blobs is not None" and then proceed. So we only go ahead if VALID blobs have
+been found. The list of these blobs is sorted in ascending order of size of the blobs. Since the
+controller will be the largest blob (if you have calibrated it correctly :P) we need to take select
+the largest blob which will be the last blob in the list of blobs. That is why we can refer to it
+by using "blobs[-1]" which refers to the last item in the list (which is the controller blob). So
+we can now use some of the blob functions on this blob like "area()" and "angle()". These are two
+important values which we will be using in the next function to compute the control signal for the
+C# program. If the program does not find any blobs, then the angle and size are set to 0. These
+two values are then returned by the function so that the next function can use them.
+
+The next function is called "writeData()" and it takes the size and angle from the previous function
+as its input variables. After that it simple constructs a control string which is written to the
+temporary file. Look at the code and try to understand what's going on. The first bit is about
+the size of the blob. This is used to detect if the controller is close to the camera or far from
+the camera since its apparent size changes depending on its distance from the camera. This value
+of the size in pixels is used to set the value of the string "fwd" as either 0 or 1, a signal to
+the C# program to either press the UP arrow key for forward motion or to release it if the
+controller is moved away from the camera.
+
+The next few conditions check whether the controller was tilted to the left or the right. Keep in
+mind that the angle returned by the "angle()" function is negative if it is tilted to the right
+and positive if tilted to the left. This data is represented by two strings "L" and "R" which
+store 0 or 1 depending on which way the controller is tilted.
+
+The function also has to tell the C# program by what degree the controller was rotated. It's not
+as simple as saying that if L == 1 press the Left key. Somehow you have to code it so that if you
+tilt the controller by a little bit, the car turns gently and if you tilt it a lot, the car takes
+a sharp turn. So we have to map the angle of the controller from 0 - 90 to a value from 0 - 100
+where the 0 - 100 value represents, well for a lack of a better way of putting it, the %force
+with which the car has to turn. 0 says the car doesn't turn at all, 100 is equivalent to keeping
+the side arrow key pressed and something like 30 would be similar to tapping the arrow key gently
+so that the car takes a gentle turn. How the C# program acts on this information is a long story
+coming up next but let us confine ourselves to this tutorial for now.
+
+It turns out that mapping 0 - 90 isn't as user friendly as mapping say 0 - 30 onto 0 - 100. Why is
+that? Well lets say you wanted to take a sharp turn, you'd have to rotate the controller by 80 - 90
+degrees which is a not comfortable. Mapping 0 - 30 makes a lot more sense because in this way an
+angle of 30 and above directly gets mapped to 100. So you only have to turn by 30 degrees to achieve
+a sharp turn instead of 90. To perform this mapping from 0 - 30 to 0 - 100 we just multiply
+the angle with a scaling factor of 100.0 / 30.0 and convert the resulting value to an integer using
+the int() function. For any value above, 30 we would get a % greater than 100 so we have to clamp
+the maximum value of this result to be 100% by using the min() function so that if it does exceed
+100, the %value is set to 100. The variable storing this data is called pwm which stands for PULSE
+WIDTH MODULATION, a technique generally used in robotics for controlling the speed of motors but
+is equally well suited to this situation. More on PWM later. Lets just wrap it up by writing the
+control string of fwd, L and R to the temp file, along with the %power on the next line. Lines 61 -
+63 are the parts which are responsible for writing to the file. You can see the syntax here - 
+https://docs.python.org/2/tutorial/inputoutput.html#methods-of-file-objects
+It should be noted that occasionally there might be errors while accessing the file because the C#
+program is reading from the file continuously too so a clash may arise leading to an exception.
+That is why the file writing part is placed in a "try: except:" block to ignore such clashes.
+
+The main function is pretty straight forward. It has a nice loop which calls the functions
+described above. First the image is captured and filtered for the right HUE, then blobs are found
+and the size and angle is computed after which this data is converted into a control string which
+is then written to a file so that it can be read by the C# program.
+The loop is however placed in a "try: except:" block so that we can use Ctrl + C to quit the loop
+nicely instead of showing a lot of weird stuff.
