@@ -12,4 +12,4 @@ There are two disadvantages with the internal webcam
    to a crisp 30 FPS on my external USB webcam.
    
 I currently use a Microsoft Lifecam VX-700 that's about several years old and cost about Rs. 1000
-It's not the best in the world but certainly way better than the built in one.
+It's not the best in the world but certainly it's way better than the built in one.
