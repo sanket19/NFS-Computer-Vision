@@ -34,7 +34,7 @@ PLEASE BE CAREFUL HERE WHILE EDITING THE Path VARIABLE DON'T DELETE ITS CONTENTS
 
 After the last entry add a semicolon ';' (the quotes are just to highlight, don't put them too)
 After the semicolon type 'C:\Python27' (again, without the quotes)
-So the final result should look like  "some_random_stuff_blah_blah/; C:\Python27" (No quotes)
+So the final result should look like  "some_random_stuff_blah_blah; C:\Python27" (No quotes)
 Once it's done, apply the settings and close everything.
 Open up a NEW command prompt window (close the old ones) and type python.
 It should work now
@@ -57,15 +57,15 @@ If it gives an error while importing SimpleCV (which it probably will) do the fo
 Read the error message and see which python module is missing
 
 Check if it truly is missing. Go to C:\Python27\Lib\site-packages and look at the folder names
-If there is no folder called numpy, scipy, pygame, PIL etc then something's wrong
+If there is no folder called numpy, scipy, pygame, PIL etc then something is wrong
 
 Download that module from the internet and install it manually (please google and use your head)
 If it's still beyond you then get in touch with me.
 
 Some people might be facing trouble with PIL (python imaging library)
-PIL is isntalled by SimpleCV but the name of the installed folder isn't just PIL, there
+PIL is installed by SimpleCV but the name of the installed folder isn't just PIL, there
 are some more letters, numbers and hyphens after it. DO NOT CONFUSE THIS WITH THE PIL FOLDER
-THAT HAS ".egg" IN ITS NAME, THATS A DIFFERENT FOLDER, DO NOT CHANGE IT'S NAME.
+THAT HAS ".egg" IN ITS NAME, THAT'S A DIFFERENT FOLDER, DO NOT CHANGE ITS NAME.
 Change the name of the other PIL folder to just 'PIL' (without the quotes')
 
 Restart your system for good measure and try importing SimpleCV again and it should work.

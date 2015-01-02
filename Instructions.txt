@@ -46,7 +46,7 @@ Note - You will need Visual Studio to compile the C# codes.
 
 Materials required - 
 
-1) A plastic scale, preferabbly 30 cms / 12 inches long
+1) A plastic scale, preferably 30 cms / 12 inches long
 2) A colored piece of paper
 3) Some glue
 
@@ -87,7 +87,7 @@ try modifying the source code in 'calibrate.py' and vary the following parameter
 *** Once you modify the source code of 'calibrate.py' to get a good result,
 *** you have to modify the corresponding lines of code in 'control.py' as well.
 *** These programs are independent but the whole point of calibration is to find
-*** settings which ensure robust detection and these settings have to be manuallly
+*** settings which ensure robust detection and these settings have to be manually
 *** changed in 'control.py' by editing the source code.
    
    

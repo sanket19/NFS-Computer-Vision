@@ -1,0 +1,77 @@
+===================================================================================================
+						CALIBRATION
+===================================================================================================
+
+In the previous tutorial, we managed to extract pixels of a particular HUE using a conversion to 
+the HSV color space. In this tutorial, we'll be examining a program that's part of the project,
+it's "calibrate.py". By examining this program, you will be able to learn how the calibration works
+and how to do additional stuff like draw text on images, calculate frame rate and handle window
+input signals like mouse clicks.
+
+Everything is pretty standard regular code until line 25. Note that all the functions in the
+previous tutorial have been chained together in a single line. You can play around with the
+threshold for binarization if you like. Also note that the dilate function has accepted a parameter
+that is 3 in this case. Basically you can pass an integer value to erode() and dilate() in order to
+perform that operation that many times. So dilate(3) will call dilate 3 times instead of just once.
+That's pretty handy considering .dilate().dilate().dilate() looks a little odd but the two are
+equivalent to one another.
+
+Now lets examine the next few lines. They are all about writing text on images. Run the program to
+see what I'm talking about. It's all right there. The function itself is pretty clearly named as
+"drawText()" which kinda tells you that it lets you draw text on an image. So what are all those
+function arguments there? The first one as the name says is "text", basically the text that you
+want to draw on the screen. Note that the type of variable it accepts is a string type and you 
+can't pass numbers directly. So you have to convert any numbers you might have such as FPS and HUE
+on line 28 and 29 to string type with the built in str() function in python. Once you do that, your
+numbers are now strings and you can happily draw them on the screen.
+
+Again, the next few parameters are self explanatory. "x" represents the x coordinate of the top
+left corner of the text to be drawn and "y" represents its y coordinate. Keep in mind that the 
+top left pixel in any image is at 0,0 the origin and as you move to the right, x increases and as
+you move down, y increases. If you have multiple lines of text, be sure to give them adequate
+spacing, as you can see I have given a spacing of 30 pixels in the program since the font size is
+24 pixels. "color" is just a tuple of RGB values. (255, 0 , 0) makes the text red as you can see
+when you run the program. You can also use the colors defined in the Color class like Color.RED
+for example to represent red. 
+
+Here's a list of colors - http://simplecv.org/docs/SimpleCV.html#i/SimpleCV.Color.Color
+drawText() info - http://simplecv.org/docs/SimpleCV.html#i/SimpleCV.ImageClass.Image/drawText
+
+Now lets see how to handle window events like mouse clicks. Lets take a look at line 33 and 36.
+There are a couple of if statements there with the conditions "display.mouseLeft" and 
+"display.mouseRight". By looking closely at mouseLeft and mouseRight we can conclude several
+things. Firstly, these two are not functions, they are attributes characterized by the lack
+of parenthesis. Secondly, these are attributes of the display object which we had created earlier
+to show the images. And thirdly, since they are used as conditions for the if statement, we know
+that they have to be boolean attributes so they can only have a value of True or False.
+
+So when are these attributes True and when are they False. Well as you can no doubt guess, if
+you press the left mouse button, display.mouseLeft becomes True and similarly if you press the
+right mouse button, display.mouseRight becomes True. If these buttons aren't pressed then they are
+False. In this way, we can detect if the mouse buttons have been pressed and take some action
+based on these events. You can also detect the mouse position by using the mouseX and mouseY
+attributes although they haven't been used here.
+
+For more information check this http://simplecv.org/docs/SimpleCV.html#i/SimpleCV.Display.Display
+
+The final part of this tutorial is about measuring the frame rate and speed of the program.
+Note that you have the best performance when your frame rate is high. So how do we measure this
+value? It's simple. We can measure either the average frame rate or the instantaneous frame rate.
+To do this, we use the "time()" function available in the "time" module. That's why in line 10, we
+write "from time import time" which basically means that we import the "time()" function from the
+"time" module which is built in. So what does the time() function do? It returns the number of
+seconds elapsed since 12:00 AM, 1st Jan, 1970. So if we call time() and then call time() again
+after an interval and subtract them, we get the difference which is equal to the number of seconds
+elapsed between the two function calls to time().
+
+To get the average frame rate, you need to run the main loop of the program for a finite number of
+times. Call time() once before the loop and once after the loop. In this way we get the average
+time taken to run N loops. Divide the result by N to find the average time for a single loop. To
+find the frame rate, just take the reciprocal of this value since FPS is nothing but frequency and
+frequency is nothing but the inverse of the time period.
+
+In this program however, we are taking the instantaneous frame rate by calling time once in each
+loop. This gives us a constantly fluctuating value for the frame rate but most of the time it
+hovers around a certain value such as 30 FPS. Lines 39 - 41 are responsible for this and the
+variables ot and nt represent the old time and the new time respectively.
+

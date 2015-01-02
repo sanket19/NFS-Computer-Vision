@@ -3,7 +3,7 @@
 ===================================================================================================
 
 Before we begin I should probably tell you how to run your programs and stuff. I recommend that you
-do not use IDLE, the Python IDE that comes along with it because it sometiems causes problems
+do not use IDLE, the Python IDE that comes along with it because it sometimes causes problems
 while running SimpleCV programs. So you need to write them separately and run them manually.
 
 Use Notepad++ for writing the programs. Get it at http://notepad-plus-plus.org/download/v6.7.2.html
@@ -64,7 +64,7 @@ http://simplecv.org/docs/SimpleCV.html#i/SimpleCV.Camera.Camera
 
 As you can see from the code, this is the creation of a display object. Why do we need a display
 object? Well a display object represents the window on which we output our final images.
-This display object is also resonsible for handling mouseclick events as we will see later
+This display object is also responsible for handling mouse click events as we will see later
 and also detects when the window has been closed. The size of the display window generally scales
 to fit the size of the image being displayed but this can be changed however. One use of the
 display object is shown in the next line.
@@ -86,7 +86,7 @@ What is does is return either True or False depending on the state of the window
 is active, it returns True but if the close button has been clicked or the ESC key has been pressed
 then it returns True. So we can use this function in our while loop to continuously check if the
 window has been closed or not. Note the use of the "not" keyword here. We want the loop to keep 
-going as long as the isDOne() fucntion returns False so we use "not" to negate that. Once the
+going as long as the isDOne() function returns False so we use "not" to negate that. Once the
 isDone() function returns True, negating that makes it False and so the loop terminates.
 
 Note - If you are using a display object, never use a loop like "while True:" You can't stop the
@@ -108,17 +108,15 @@ http://simplecv.org/docs/SimpleCV.html#i/SimpleCV.ImageClass.Image
 
 The key here is to understand that most of these functions RETURN ANOTHER IMAGE object. So syntax
 like "img_flipped = img.flipHorizontal().flipVertical().flipHorizontal().flipVertical()"
-is perferctly valid syntax since the output of one operation is the input for the next. In fact, 
+is perfectly valid syntax since the output of one operation is the input for the next. In fact, 
 this series of operations actually returns the exact same image :P
 
 --------------------------------- line 13 - "flipped_img.show()" ----------------------------------
 
 The show function is one of the most important functions here. It basically displays the image on
-the window created by the display object earlier. This is one of the few Image class fucntions that
+the window created by the display object earlier. This is one of the few Image class functions that
 does not return any value and so it does not to be stored in a variable.
 
 Note that the previous 3 lines of code could easily have been replaced by
 "cam.getImage().flipHorizontal().show()"
 Keep this in mind since we will be using this quite often later on.
-
-
