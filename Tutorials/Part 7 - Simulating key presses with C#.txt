@@ -1,0 +1,140 @@
+===================================================================================================
+				SIMULATING KEY PRESSES WITH C#
+===================================================================================================
+
+#incomplete tutorial. sorry im just too tired to complete it.
+
+This is the final tutorial in this 7 part series. An important note to everyone, this part deals
+with a C# program. If you are familiar with Java or C++ this shouldn't be too difficult to follow
+but it will be a bit alien if you are more comfortable with Python. I don't really know C# but I do
+know Java and from what I've seen, the syntax is quite similar. It is also important to note that
+we will be using two external libraries. The first is a dll file called InputManager.dll which
+we will be using to simulate keyboard input although it is capable of a lot more. I got it online
+here http://www.codeproject.com/Articles/117657/InputManager-library-Track-user-input-and-simulate
+and you can read about how to use it online in case you wish to use some of the other functions.
+The other external piece of code we'll be using is something called MicroTimer, a class used for
+microsecond timing which is crucial for our application. You can read more about it here - 
+http://www.codeproject.com/Articles/98346/Microsecond-and-Millisecond-NET-Timer I didn't write this
+class, I am merely using it in my program and I had to look at some of the examples online to learn
+how to use it. So in a way you can also treat this as an exercise in examining a new language and
+learning to use code written by others by looking at the documentation and examples. Like I said
+earlier, I don't really know C# but I will do the best I can to explain it to you. If you'd like
+to learn more about the language you can do so here - http://www.tutorialspoint.com/csharp/
+
+Perhaps I should take a moment to explain why I'm using C# when the rest of the code is written in
+python (because I like python and it's easy to use). The crux of the issue lies with the way in
+which keystrokes are simulated. You see, to translate our control signals into keystrokes, we have 
+to use some API to simulate keyboard input and there are several excellent python modules out there
+like PyKeyboard which do exactly that. I have used PyKeyboard and it works beautifully. Why then am
+I not using it here? I was stumped for a while when I tried unsuccessfully so many times to make it
+work and googled a lot of stuff until I finally found the answer. The simple explanation is that
+the keystrokes simulated by PyKeyboard are virtual and computer games like NFS are built using
+DirectX which has it's own way of accepting keyboard input. This makes it difficult to fool the
+game into thinking that a key has been pressed because it tends to ignore virtual keystrokes. So
+somehow we have to simulate input in such a way that DirectX doesn't ignore it. After searching a
+bit, I found the C# InputManager library online and decided to use it as a last resort. That's why
+we're going to be using C# and not python for this particular application. If anyone knows how to
+simulate DirectX level keyboard input in python, I'd be really grateful if you'd tell me how.
+
+Before we get around to looking at the code, perhaps it would be better if were to explain the
+algorithm first. As you know, the python program "control.py" is responsible for extracting the
+size and angle of the controller, generating a control signal and writing it to a temporary file.
+The C# program has to read the file and simulate the key presses according to the control signal.
+There are a couple of functions which we will use for that, one to press the key and one to release
+the key. Just for reference, they are called "KeyDown()" and "KeyUp()" and we'll get to them later.
+
+So anyway, we now have a way of simulating key presses, we need an algorithm to determine when to
+press the keys and when to release them. The algorithm to press the UP arrow key is easy enough.
+Read the first line of the the file and extract the first character. If it's a zero then release
+the key. If it's a zero and the key was already released, do nothing. If it's a one then press the
+key and if it's already been pressed, do nothing. Simple enough. But the algorithm for pressing the
+left and right arrow keys is not that straightforward. It's easy to extract the second and third 
+characters of the first line and figure out whether to turn right or left. But correlating the
+sharpness of the turn to the angle by which the controller was turned is a bit harder. Remember the
+second line of the control signal was a percentage? It's just a measure of how sharp the turn is
+where 100 means keep the LEFT or RIGHT arrow key pressed continuously and 0 means keep it released.
+So what then would 50 mean? It would probably mean that we have to take a gentle turn. If a real
+player had to take a gentle turn, he wouldn't keep the key pressed all the time. He'd just tap it
+gently again and again for varying time intervals. So maybe 50 means that the key should be pressed
+for some time and then released for an equal interval of time. So if the value is x, we should keep
+the key pressed for some x units of time and then release it for 100-x units of time. Not only that
+but this process has to be repeated again and again at a high frequency in order to average out
+the effects of pressing and releasing the keys. What does that mean? Take a case where the power
+percentage is 50. Let's say that I keep the key pressed for 5 seconds and release it for 5 seconds.
+Theoretically it should give me the desired result but practically it results in extremely jerky
+motion. But what if I keep the key pressed for 0.05 seconds and release it for 0.05 seconds. Now
+the motion is no longer jerky, it is smooth and controlled. This is something called PWM or Pulse
+Width Modulation. Read about it here - http://en.wikipedia.org/wiki/Pulse-width_modulation
+
+It should be noted that performance improves when the frequency of modulation is higher. In the
+first example I gave, the time period was 10 seconds so frequency was 0.1 Hz which from a PWM point
+of view SUCKS. The second example had a time period of 0.1 seconds and frequency 10 Hz which is not
+good enough but a 100 times better than 0.1 Hz. We need something like 100 Hz for good performance
+and achieving that isn't easy. 100 Hz means a time period of 10 milliseconds. Lets say I give a
+percentage of 1 as my input signal. It means that I'd have to press the key for 0.1 milliseconds
+and release it for 9.9 milliseconds. So I need to be able to measure time with an accuracy of at
+least 100 micro seconds which isn't easy since Windows isn't a real time operating system. C# 's 
+built in functions can measure upto 1 millisecond which just isn't good enough. So I searched for a
+way to measure time with greater accuracy in C# and I found the MicroTimer library which somehow
+manages to achieve microsecond timing. I'm not sure how it does this and although it isn't always
+accurate, it works most of the time which is good enough for this project.
+
+#add stuff here
+
+
+
+Now that we've got the preliminaries out of the way, lets examine the code line by line.
+Open up "Program.cs" in Notepad++ or MS Visual Studio and check it out.
+The first 4 lines are all about using things. We've got code like "using System" etc and it's kinda
+interesting. Basically the stuff that we are "using" are called namespaces which are like a bunch
+of libraries of pre written code, not unlike using the import statement in python where we import
+a bunch of stuff like SimpleCV, or time or math etc. So when I type "using System" I'm basically
+telling the C# compiler that I want to use all the functions present in the System library. C++
+users will be familiar with the concept of namespaces and it is exactly the same here. Java coders
+can consider a namespace to be like a package and "using namespace xyz" is similar to importing
+those packages.
+
+So what's inside these namespaces? Honestly I don't know but a quick google search will tell you all
+you need to know. The "System" namespace is used in several places. It is used for the basic input
+and output operations like accepting user input and printing results on screens. It is also used to
+define the String and Boolean data types and also contains the Exception class which is used in try
+catch blocks to handle errors in the program. It is also has the Convert.toInt32() function which
+converts a string to an integer.
+
+The "System.Windows.Forms" namespace is used to define certain keys which we will be passing as
+arguments to the functions which simulate keyboard input. The functions in question are the
+Keyboard.KeyUp() and Keyboard.KeyDown() functions which happen to be inside the InputManager
+namespace which in turn is part of InputManager.dll . So if you want to run this program, you will
+need that dll file to be present. The last namespace that we will be using is "System.IO" which is
+used in the file reading part of the program. It is also important to note that we will be defining
+our own namespace NFSKeys since we are using the external MicroTimer class which also has to be in
+the same namespace and this fact is indicated on line 6.
+
+Everything in C# and Java has to be in a class (even if it's not needed like this case). So this is
+a class Program which we are defining. In C# and Java, the class which has to have a main() function
+which is called automatically when the compiled executable is run. Lets move on and look at some of
+the variables that we are defining. There are a lot of them, and their use will become apparent
+later on. Note that they are all static variables and if you don't know what a static variable is,
+never mind although you can read about it here http://en.wikipedia.org/wiki/Static_variable
+
+Moving on to our main function, we have a simple statement on line 20 which as you can no doubt
+guess is used for printing "Staring program" to the console. It is equivalent to the print statement
+in python. The next few lines are extremely important. Line 22 creates a new MicroTimer object mt
+which we will be using for microsecond timing. The next line assigns a callback function to this
+MicroTimer object. If you look at the code, there is a function called ButtonPress on line 72.
+This ButtonPress function is assigned as a callback to the MicroTimer object. It is worth noting
+that a callback function is a function that is only called when a certain event occurs. You will
+come across callback functions in a lot of event driven programs like GUI programs, android
+programming or socket programming and even embedded C for AVR robots. So what is the event here? It
+a periodic event that is triggered at a fixed time interval. The next line sets that interval for
+the MicroTimer object as 100 microseconds and the line after that starts the timer.
+
+Lets take a step back and look at the bigger picture and see what's going on. Basically we have
+configured a MicroTimer object. This object is designed in such a way that we can set an interval
+for the timer in microseconds. At the end of each interval, the callback function assigned to the
+MicroTimer object "ButtonPress" is called. Essentially what's happening is that we have made a timer
+which runs the "ButtonPress" function every 100 microseconds. So now we've got a periodic function
+called "ButtonPress" which is called every 100 microseconds. What does "ButtonPress" do? We'll come
+to that later.
+
+#add more stuff here
