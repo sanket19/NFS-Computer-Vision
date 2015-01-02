@@ -1,0 +1,15 @@
+My observations show that using an external webcam is always better than using the internal webcam.
+
+There are two disadvantages with the internal webcam
+
+1) On my Dell laptop, I cannot use the webcam at 640 x 480 resolution
+   I keep getting the error "ERROR - SampleCB buffer sizes do not match"
+   Probably some issue with the Dell webcam driver.
+   
+2) The colors are washed out as if there is a gray fog in front of the camera.
+   Also the frame rate is extremely poor even in excellent lighting conditions
+   Unless I directly shine a light at it, I don't get more than 15 FPS as compared
+   to a crisp 30 FPS on my external USB webcam.
+   
+I currently use a Microsoft Lifecam VX-700 that's about several years old and cost about Rs. 1000
+It's not the best in the world but certainly way better than the built in one.
