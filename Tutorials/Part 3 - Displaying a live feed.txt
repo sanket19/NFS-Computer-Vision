@@ -83,7 +83,7 @@ click the red button with the X to close it (like a normal window) or if you pre
 These two phenomena are called events. Moving the mouse around is also an event. The display object
 can check for these events and do stuff accordingly. Take for example the "isDone()" function.
 What is does is return either True or False depending on the state of the window. If the window
-is active, it returns True but if the close button has been clicked or the ESC key has been pressed
+is active, it returns False but if the close button has been clicked or the ESC key has been pressed
 then it returns True. So we can use this function in our while loop to continuously check if the
 window has been closed or not. Note the use of the "not" keyword here. We want the loop to keep 
 going as long as the isDOne() function returns False so we use "not" to negate that. Once the
